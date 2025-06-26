@@ -2,24 +2,35 @@
 const EMPTY_HEART = '♡'
 const FULL_HEART = '♥'
 
-// Your JavaScript code goes here!
+// Select DOM elements
+const heart = document.querySelector('.like-glyph');
+const errorModal = document.querySelector('#error-modal');
+const errorMessage = document.querySelector('#error-modal p');
 
-
-
-
-//------------------------------------------------------------------------------
-// Don't change the code below: this function mocks the server response
-//------------------------------------------------------------------------------
-
-function mimicServerCall(url="http://mimicServer.example.com", config={}) {
-  return new Promise(function(resolve, reject) {
-    setTimeout(function() {
-      let isRandomFailure = Math.random() < .2
-      if (isRandomFailure) {
-        reject("Random server error. Try again.");
-      } else {
-        resolve("Pretend remote server notified of action!");
-      }
-    }, 300);
-  });
-}
+// Add event listener for heart click
+heart.addEventListener('click', () => {
+  // Check if heart is already activated
+  if (heart.classList.contains('activated-heart')) {
+    // If full heart, make it empty
+    heart.classList.remove('activated-heart');
+    heart.textContent = EMPTY_HEART;
+  } else {
+    // If empty heart, make server call
+    mimicServerCall()
+      .then(() => {
+        // On success, fill heart and make it red
+        heart.textContent = FULL_HEART;
+        heart.classList.add('activated-heart');
+      })
+      .catch((error) => {
+        // On error, show modal with message
+        errorModal.classList.remove('hidden');
+        errorMessage.textContent = error; // Use the error message from the server
+        
+        // Hide modal after 3 seconds
+        setTimeout(() => {
+          errorModal.classList.add('hidden');
+        }, 3000);
+      });
+  }
+});
